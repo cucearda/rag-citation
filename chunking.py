@@ -26,13 +26,15 @@ import logging
 import os
 import re
 import anthropic
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from pathlib import Path
 from typing import List, Tuple, Dict, Any, Optional
 
 import nltk
 from nltk.tokenize.texttiling import TextTilingTokenizer
 from pypdf import PdfReader
+
+from models import Section, Chunk
 
 # -------------------- NLTK check --------------------
 try:
@@ -42,30 +44,6 @@ except LookupError as e:
         "NLTK 'punkt' tokenizer data not found.\n"
         "Run: python -c \"import nltk; nltk.download('punkt')\""
     ) from e
-
-
-# -------------------- Output schemas --------------------
-@dataclass
-class Section:
-    """Represents a detected heading/section in the PDF."""
-    title: str
-    page_num: int  # 1-based, if known; 0 if unknown
-    char_offset_start: int
-    char_offset_end: int
-    level: int  # 1 top-level, 2 subsection, 3 sub-subsection
-
-
-@dataclass
-class Chunk:
-    chunk_id: int
-    start_char: int
-    end_char: int
-    pages: List[int]
-    text: str
-    author: str
-    title: str
-    section_title: str
-    section_level: int
 
 
 # -------------------- PDF extraction (PyPDF) --------------------
@@ -575,19 +553,17 @@ def chunk_pdf(
     heading_system_prompt: str = DEFAULT_HEADING_SYSTEM_PROMPT,
     heading_max_tokens: int = 1200,
     development: bool = False,
-) -> Dict[str, Any]:
+) -> List[Chunk]:
     """
     PDF -> text -> headings (Claude) -> TextTiling chunks -> enriched chunk metadata.
 
-    Returns JSON-serializable dict:
-      {
-        "source_pdf": ...,
-        "meta": {"author":..., "title":...},
-        "num_pages": ...,
-        "num_chunks": ...,
-        "sections": [...],
-        "chunks": [...]
-      }
+    Returns a list of Chunk objects, each containing:
+      - chunk_id: sequential chunk number
+      - start_char, end_char: character offsets in the document
+      - pages: list of 1-based page numbers this chunk spans
+      - text: the chunk text content
+      - author, title: PDF metadata
+      - section_title, section_level: detected section heading info
     """
     pdf_path = str(pdf_path)
     meta = extract_pdf_metadata(pdf_path)
@@ -639,16 +615,4 @@ def chunk_pdf(
             )
         )
 
-    return {
-        "source_pdf": str(Path(pdf_path).resolve()),
-        "meta": meta,
-        "params": {
-            "texttiling": {"w": w, "k": k, "smoothing_width": smoothing_width},
-            "heading_model": heading_model,
-        },
-        "num_pages": len(pages),
-        "num_sections": len(sections),
-        "num_chunks": len(chunks),
-        "sections": [asdict(s) for s in sections],
-        "chunks": [asdict(c) for c in chunks],
-    }
+    return chunks
