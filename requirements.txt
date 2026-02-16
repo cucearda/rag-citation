@@ -1,0 +1,6 @@
+pinecone>=7.0.0
+voyageai
+pypdf
+nltk
+anthropic
+python-dotenv

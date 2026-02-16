@@ -31,10 +31,14 @@ from pathlib import Path
 from typing import List, Tuple, Dict, Any, Optional
 
 import nltk
+from dotenv import load_dotenv
 from nltk.tokenize.texttiling import TextTilingTokenizer
 from pypdf import PdfReader
 
 from models import Section, Chunk
+
+# Load environment variables from .env file
+load_dotenv()
 
 # -------------------- NLTK check --------------------
 try:

@@ -1,0 +1,16 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# API keys and secrets
+api_key.json
+.env
