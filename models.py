@@ -38,3 +38,25 @@ class EmbeddedChunk:
     chunk: Chunk
     vector_id: str
     embedding: List[float]
+
+
+@dataclass
+class ClaimEvidence:
+    """Evidence supporting a claim from a paper."""
+    chunk_id: str
+    score: float
+    text: str
+    author: str
+    title: str
+    section_title: str
+    pages: List[int]
+
+
+@dataclass
+class Claim:
+    """Represents a claim extracted from input text."""
+    index: int
+    text: str
+    sentence_indices: List[int]  # Which sentences form this claim
+    word_count: int
+    evidence: List[ClaimEvidence]
