@@ -18,3 +18,4 @@ Do not proceed with Pinecone-related tasks without consulting the appropriate gu
 @./.agents/PINECONE-java.md
 @./.agents/PINECONE-quickstart.md
 @./.agents/PINECONE-troubleshooting.md
+
